@@ -1,0 +1,265 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viral Architect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #05050A; color: #f0f0f0; overflow-x: hidden; }
+        .gradient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(at 27% 37%, hsla(215, 98%, 61%, 0.1) 0px, transparent 50%), 
+                        radial-gradient(at 97% 21%, hsla(125, 98%, 61%, 0.1) 0px, transparent 50%),
+                        radial-gradient(at 82% 99%, hsla(340, 98%, 61%, 0.1) 0px, transparent 50%);
+            animation: gradient-animation 15s ease infinite;
+        }
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .glass-pane { background: rgba(10, 10, 15, 0.5); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .fade-in { animation: fadeIn 0.7s ease-in-out forwards; }
+        .fade-out { animation: fadeOut 0.7s ease-in-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
+        .hidden { display: none; }
+        .btn-primary { background: #fff; color: #05050A; transition: all 0.3s ease; }
+        .btn-primary:hover:not(:disabled) { background: #38bdf8; color: #fff; transform: translateY(-2px) scale(1.02); }
+        .btn-primary:disabled { background-color: #374151; color: #9ca3af; cursor: not-allowed; }
+        .btn-secondary { background-color: rgba(255,255,255,0.05); color: #9ca3af; border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s ease; }
+        .btn-secondary:hover { background-color: rgba(255,255,255,0.1); color: #f0f0f0; }
+        .input-field { background: rgba(0, 0, 5, 0.3); border: 1px solid rgba(255,255,255,0.1); color: #f0f0f0; }
+        .input-field:focus { outline: none; border-color: #38bdf8; }
+        .prose-custom { color: #d1d5db; }
+        .prose-custom h3 { color: #fff; font-weight: 700; }
+        .prose-custom strong { color: #93c5fd; }
+        .prose-custom ul { list-style-type: '✓ '; padding-left: 1.25rem; }
+    </style>
+</head>
+<body class="p-0 m-0">
+    <div class="gradient-bg"></div>
+
+    <!-- Login Screen -->
+    <section id="login-screen" class="fixed inset-0 z-50 flex items-center justify-center p-4 fade-in">
+        <div class="w-full max-w-sm text-center glass-pane p-8 rounded-2xl">
+            <h1 class="text-4xl font-extrabold mb-2 text-white">Viral Architect</h1>
+            <p class="text-slate-400 mb-8">Masuk untuk mengakses Asisten AI Anda.</p>
+            <form id="login-form" class="space-y-4">
+                <input type="email" class="w-full p-3 rounded-lg input-field" placeholder="Email Anda" required>
+                <input type="password" class="w-full p-3 rounded-lg input-field" placeholder="Kata Sandi" required>
+                <button type="submit" class="w-full p-3 rounded-lg font-bold text-lg btn-primary">Masuk</button>
+            </form>
+            <div class="relative flex py-5 items-center"><div class="flex-grow border-t border-gray-700"></div><span class="flex-shrink mx-4 text-gray-500 text-sm">atau</span><div class="flex-grow border-t border-gray-700"></div></div>
+            <button id="guest-login-btn" class="w-full p-3 rounded-lg font-bold btn-secondary">Coba Gratis (3x Penggunaan)</button>
+        </div>
+    </section>
+
+    <!-- Main Application Container -->
+    <section id="app-container" class="hidden relative z-10 p-4 sm:p-8">
+        <div class="max-w-5xl mx-auto space-y-8">
+            <header class="text-center">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-white">Viral Architect</h1>
+                <p class="text-slate-400 mt-2">Ditenagai oleh AI untuk ide konten viral & analisis akun</p>
+                <p id="trial-counter" class="text-amber-400 text-sm font-medium mt-2 hidden"></p>
+            </header>
+            <div class="border-b border-gray-800"><nav class="flex -mb-px space-x-4 justify-center" aria-label="Tabs"><button id="tab-ide" class="py-3 px-4 font-medium tab-btn active">Generator Ide</button><button id="tab-review" class="py-3 px-4 font-medium tab-btn">Review Akun</button></nav></div>
+            <main class="glass-pane p-6 rounded-xl">
+                <div id="panel-ide" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div><label class="block text-sm font-medium text-sky-300 mb-1">Platform</label><select id="platform-ide" class="w-full rounded-lg p-2 input-field"><option>TikTok</option><option>YouTube Shorts</option><option>Instagram Reels</option></select></div>
+                        <div><label class="block text-sm font-medium text-sky-300 mb-1">Niche</label><input type="text" id="niche" class="w-full rounded-lg p-2 input-field" placeholder="Cth: Produktivitas"></div>
+                        <div><label class="block text-sm font-medium text-sky-300 mb-1">Tipe Konten</label><select id="content-type" class="w-full rounded-lg p-2 input-field"><option>Edukasi</option><option>Hiburan</option><option>Tutorial</option></select></div>
+                    </div>
+                    <div class="pt-4 flex justify-center"><button id="generate-ide-btn" class="px-8 py-3 rounded-lg font-bold btn-primary">Hasilkan Ide</button></div>
+                    <div id="result-container-ide" class="mt-4 prose-custom max-w-none"></div>
+                </div>
+                <div id="panel-review" class="hidden space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><label class="block text-sm font-medium text-sky-300 mb-1">Platform</label><select id="platform-review" class="w-full rounded-lg p-2 input-field"><option>Instagram</option><option>TikTok</option><option>YouTube</option></select></div>
+                        <div><label class="block text-sm font-medium text-sky-300 mb-1">Username</label><input type="text" id="username" class="w-full rounded-lg p-2 input-field" placeholder="@username"></div>
+                    </div>
+                    <div class="pt-4 flex justify-center"><button id="generate-review-btn" class="px-8 py-3 rounded-lg font-bold btn-primary">Analisis Akun</button></div>
+                    <div id="result-container-review" class="mt-4 prose-custom max-w-none"></div>
+                </div>
+            </main>
+            <footer class="text-center text-xs text-slate-600 pt-4">dibuat oleh Chandra K. Wijaya</footer>
+        </div>
+    </section>
+
+    <!-- Modals -->
+    <div id="upgrade-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="w-full max-w-md text-center glass-pane p-8 rounded-2xl">
+            <h2 class="text-2xl font-bold text-amber-400 mb-2">Uji Coba Gratis Selesai!</h2>
+            <p class="text-slate-300 mb-6">Upgrade ke Premium untuk penggunaan tanpa batas.</p>
+            <ul class="text-left space-y-2 mb-6 text-slate-300 prose-custom"><li>Penggunaan AI Tanpa Batas</li><li>Analisis Tren Lebih Dalam</li><li>Prioritas Dukungan</li></ul>
+            <button id="upgrade-now-btn" class="w-full p-3 rounded-lg font-bold text-lg btn-primary bg-sky-500 hover:bg-sky-400">Upgrade Sekarang</button>
+        </div>
+    </div>
+    <div id="payment-screen" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="w-full max-w-sm text-center glass-pane p-8 rounded-2xl">
+            <h2 class="text-2xl font-bold mb-2">Selesaikan Pembayaran</h2>
+            <p class="text-slate-400 mb-4">Pindai QR Code di bawah dengan aplikasi E-Wallet Anda.</p>
+            <div class="bg-white p-2 rounded-md inline-block"><img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://midtrans.com/simulation" alt="Simulasi Kode QRIS"></div>
+            <p class="text-sm mt-4 text-slate-500">Total: Rp 99.000,-</p>
+            <button id="payment-done-btn" class="w-full p-3 mt-6 rounded-lg font-bold btn-secondary">Saya Sudah Bayar (Simulasi)</button>
+        </div>
+    </div>
+    <div id="loading-overlay" class="hidden fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm flex items-center justify-center"><div class="flex flex-col items-center"><div class="w-16 h-16 border-4 border-t-transparent border-sky-400 rounded-full animate-spin"></div><p id="loading-text" class="mt-4 text-lg font-medium text-sky-300">Menghubungi AI...</p></div></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const TRIAL_LIMIT = 3;
+        let isGuest = false;
+
+        const ui = {
+            loginScreen: document.getElementById('login-screen'),
+            appContainer: document.getElementById('app-container'),
+            loginForm: document.getElementById('login-form'),
+            guestLoginBtn: document.getElementById('guest-login-btn'),
+            trialCounter: document.getElementById('trial-counter'),
+            generateIdeBtn: document.getElementById('generate-ide-btn'),
+            generateReviewBtn: document.getElementById('generate-review-btn'),
+            upgradeModal: document.getElementById('upgrade-modal'),
+            upgradeNowBtn: document.getElementById('upgrade-now-btn'),
+            paymentScreen: document.getElementById('payment-screen'),
+            paymentDoneBtn: document.getElementById('payment-done-btn'),
+            loadingOverlay: document.getElementById('loading-overlay'),
+            loadingText: document.getElementById('loading-text'),
+            tabs: { ide: document.getElementById('tab-ide'), review: document.getElementById('tab-review') },
+            panels: { ide: document.getElementById('panel-ide'), review: document.getElementById('panel-review') },
+            resultContainers: { ide: document.getElementById('result-container-ide'), review: document.getElementById('result-container-review') }
+        };
+
+        const getTrialCount = () => parseInt(localStorage.getItem('viralArchitectTrialCount') || '0', 10);
+        const setTrialCount = (count) => localStorage.setItem('viralArchitectTrialCount', count);
+        const showModal = (modal) => { modal.classList.remove('hidden'); modal.classList.add('fade-in'); };
+        const hideModal = (modal) => {
+            modal.classList.add('fade-out');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('fade-out'); }, 700);
+        };
+
+        const updateTrialUI = () => {
+            if (!isGuest) { ui.trialCounter.classList.add('hidden'); return; }
+            const remaining = TRIAL_LIMIT - getTrialCount();
+            ui.trialCounter.textContent = `Sisa Uji Coba: ${remaining} kali`;
+            ui.trialCounter.classList.remove('hidden');
+            if (remaining <= 0) {
+                ui.generateIdeBtn.disabled = true;
+                ui.generateReviewBtn.disabled = true;
+                showModal(ui.upgradeModal);
+            }
+        };
+
+        const transitionToApp = () => {
+            hideModal(ui.loginScreen);
+            setTimeout(() => {
+                ui.appContainer.classList.remove('hidden');
+                ui.appContainer.classList.add('fade-in');
+                if (isGuest) updateTrialUI();
+            }, 500);
+        };
+
+        ui.loginForm.addEventListener('submit', (e) => { e.preventDefault(); isGuest = false; transitionToApp(); });
+        ui.guestLoginBtn.addEventListener('click', () => { isGuest = true; transitionToApp(); });
+        ui.upgradeNowBtn.addEventListener('click', () => { hideModal(ui.upgradeModal); showModal(ui.paymentScreen); });
+        ui.paymentDoneBtn.addEventListener('click', () => {
+            isGuest = false;
+            hideModal(ui.paymentScreen);
+            ui.trialCounter.classList.add('hidden');
+            ui.generateIdeBtn.disabled = false;
+            ui.generateReviewBtn.disabled = false;
+            alert('Pembayaran Berhasil! Anda sekarang memiliki akses premium.');
+        });
+
+        function switchTab(activeKey) {
+            Object.keys(ui.tabs).forEach(key => {
+                const isActive = key === activeKey;
+                ui.tabs[key].classList.toggle('active', isActive);
+                ui.panels[key].classList.toggle('hidden', !isActive);
+                if (!isActive) ui.resultContainers[key].innerHTML = '';
+            });
+        }
+        ui.tabs.ide.addEventListener('click', () => switchTab('ide'));
+        ui.tabs.review.addEventListener('click', () => switchTab('review'));
+
+        async function callBackend(prompt) {
+            if (isGuest) {
+                let count = getTrialCount();
+                if (count >= TRIAL_LIMIT) { updateTrialUI(); return null; }
+                setTrialCount(count + 1);
+            }
+            showModal(ui.loadingOverlay);
+            
+            // FIX: More robust check for local/preview vs deployed environment
+            const isLocalEnvironment = !window.location.protocol.startsWith('http');
+
+            if (isLocalEnvironment) {
+                console.warn("Local/preview environment detected. Simulating backend call.");
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        if (isGuest) updateTrialUI();
+                        hideModal(ui.loadingOverlay);
+                        // Updated dummy response to be clearer
+                        const dummyResponse = `### **INI ADALAH CONTOH RESPONS (SIMULASI)**\n\nAplikasi ini belum terhubung ke AI di lingkungan pratinjau ini. Hasil yang sesungguhnya dari AI akan muncul setelah aplikasi di-deploy ke server (seperti Netlify).\n\n---\n\n### Ide Contoh 1: Resep Rahasia Viral\n* **Hook:** "99% orang salah masak mie instan! Ini cara yang benar."\n* **Konsep Singkat:** Tunjukkan cara memasak mie instan dengan tambahan bumbu atau teknik yang tidak biasa tapi hasilnya sangat enak.\n* **Elemen Viral:** #LifeHack, #ResepViral`;
+                        resolve(dummyResponse);
+                    }, 2000);
+                });
+            }
+
+            const API_ENDPOINT = "/.netlify/functions/getAiResponse";
+            try {
+                const response = await fetch(API_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: prompt }) });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Server error: ${response.status}`);
+                }
+                const data = await response.json();
+                if (isGuest) updateTrialUI();
+                return data.completion;
+            } catch (error) {
+                console.error("Error calling backend:", error);
+                return `Maaf, terjadi kesalahan saat menghubungi AI. Error: ${error.message}`;
+            } finally {
+                hideModal(ui.loadingOverlay);
+            }
+        }
+
+        const handleGenerate = async (type) => {
+            let prompt, resultContainer;
+            if (type === 'ide') {
+                const platform = document.getElementById('platform-ide').value;
+                const niche = document.getElementById('niche').value || 'topik umum';
+                const contentType = document.getElementById('content-type').value;
+                ui.loadingText.textContent = `AI meracik ide untuk ${niche}...`;
+                prompt = `Anda adalah ahli strategi konten viral untuk media sosial. Buatkan 3 ide konten yang sangat berpotensi viral untuk platform ${platform}. Niche: ${niche}. Tipe Konten: ${contentType}. Untuk setiap ide, berikan: 1. **Judul/Hook:** Judul yang sangat menarik. 2. **Konsep Singkat:** Penjelasan video. 3. **Elemen Viral:** 2 elemen kunci (misal: audio tren, satisfying, relatable). Format jawabanmu sebagai Markdown yang rapi.`;
+                resultContainer = ui.resultContainers.ide;
+            } else {
+                const platform = document.getElementById('platform-review').value;
+                const username = document.getElementById('username').value;
+                if (!username) { alert("Harap masukkan username."); return; }
+                ui.loadingText.textContent = `AI menganalisis akun ${username}...`;
+                prompt = `Anda adalah analis media sosial profesional. Lakukan review singkat untuk akun @${username} di ${platform}. Berikan analisis dalam format Markdown: 1. **Skor Potensi Viral:** Skor 1-100. 2. **Kekuatan Utama (2 poin):** Dua hal yang sudah bagus. 3. **Area Peningkatan (3 poin):** Tiga saran konkret untuk perbaikan. Buat analisis ini profesional dan membangun.`;
+                resultContainer = ui.resultContainers.review;
+            }
+            const result = await callBackend(prompt);
+            if (result) {
+                resultContainer.innerHTML = (typeof marked !== 'undefined') ? marked.parse(result) : result.replace(/\n/g, '<br>');
+            }
+        };
+        ui.generateIdeBtn.addEventListener('click', () => handleGenerate('ide'));
+        ui.generateReviewBtn.addEventListener('click', () => handleGenerate('review'));
+    });
+    </script>
+</body>
+</html>
