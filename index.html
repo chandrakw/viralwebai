@@ -201,19 +201,18 @@
             }
             showModal(ui.loadingOverlay);
             
-            // FIX: More robust check for local/preview vs deployed environment
-            const isLocalEnvironment = !window.location.protocol.startsWith('http');
+            // FIX: The robust check for local/preview vs deployed environment
+            const isDeployed = window.location.hostname.endsWith('netlify.app');
 
-            if (isLocalEnvironment) {
+            if (!isDeployed) {
                 console.warn("Local/preview environment detected. Simulating backend call.");
                 return new Promise(resolve => {
                     setTimeout(() => {
                         if (isGuest) updateTrialUI();
                         hideModal(ui.loadingOverlay);
-                        // Updated dummy response to be clearer
-                        const dummyResponse = `### **INI ADALAH CONTOH RESPONS (SIMULASI)**\n\nAplikasi ini belum terhubung ke AI di lingkungan pratinjau ini. Hasil yang sesungguhnya dari AI akan muncul setelah aplikasi di-deploy ke server (seperti Netlify).\n\n---\n\n### Ide Contoh 1: Resep Rahasia Viral\n* **Hook:** "99% orang salah masak mie instan! Ini cara yang benar."\n* **Konsep Singkat:** Tunjukkan cara memasak mie instan dengan tambahan bumbu atau teknik yang tidak biasa tapi hasilnya sangat enak.\n* **Elemen Viral:** #LifeHack, #ResepViral`;
+                        const dummyResponse = `### **INI ADALAH CONTOH RESPONS (MODE PRATINJAU)**\n\nAplikasi ini belum terhubung ke AI. Hasil yang sesungguhnya dari AI akan muncul setelah aplikasi di-deploy ke server (seperti Netlify).\n\n---\n\n### Ide Contoh 1: Resep Rahasia Viral\n* **Hook:** "99% orang salah masak mie instan! Ini cara yang benar."\n* **Konsep Singkat:** Tunjukkan cara memasak mie instan dengan tambahan bumbu atau teknik yang tidak biasa tapi hasilnya sangat enak.\n* **Elemen Viral:** #LifeHack, #ResepViral`;
                         resolve(dummyResponse);
-                    }, 2000);
+                    }, 1500);
                 });
             }
 
